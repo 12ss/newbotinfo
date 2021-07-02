@@ -1,0 +1,1 @@
+woeker: python newbotinfo.py
