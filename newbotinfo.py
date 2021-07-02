@@ -4,7 +4,7 @@ import requests
 from telepot.loop import MessageLoop
 
 n = str
-bot = telepot.Bot('1863114647:AAFSslLTvMsZM5pYl5hv7qWmO6DLGoiz-kY')
+bot = telepot.Bot('1744244474:AAHLZPNxMS_SQXeMwsB-5oY-vvap6zsqXjQ')
 
 def randpas(msg):
     person_id = msg['chat']['id']
