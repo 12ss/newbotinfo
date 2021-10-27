@@ -3,7 +3,7 @@ import telebot
 from telebot import types
 from user_agent import generate_user_agent
 
-tok = '1805574903:AAF_WcH4Ytc6iHGQSvcYX2qu3tyHoseKUkc'
+tok = '2048328126:AAFt1mEZbN28v2O89VfDIJNoJqK9kndYef8'
 bot = telebot.TeleBot(tok)
 
 headers = {
