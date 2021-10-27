@@ -1,65 +1,57 @@
-import telepot
-import time
 import requests
-from telepot.loop import MessageLoop
+import telebot
+from telebot import types
+from user_agent import generate_user_agent
 
-n = str
-bot = telepot.Bot('1744244474:AAHLZPNxMS_SQXeMwsB-5oY-vvap6zsqXjQ')
+tok = '1805574903:AAF_WcH4Ytc6iHGQSvcYX2qu3tyHoseKUkc'
+bot = telebot.TeleBot(tok)
 
-def randpas(msg):
-    person_id = msg['chat']['id']
-    command = msg['text']
-    print("command: ", command)
-    if command == '/start':
-        replay = "اهلا بك, ادخل يوزر الشخص"
-        bot.sendMessage(person_id, replay)
-    elif command == '/help':
-        replay = "ادخل اليوزر بدون علامة(@)\n\n اذ لم تظهر النتائج تأكد من كتابته بالشكل الصحيح`✔ "
-        bot.sendMessage(person_id, replay)
-    elif command == command:
-        user = command
-        headers = {
-            'HOST': "www.instagram.com",
-            'KeepAlive' : 'True',
-            'user-agent' : "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36",
-            'Cookie': 'cookie',
-            'Accept' : "*/*",
-            'ContentType' : "application/x-www-form-urlencoded",
-            "X-Requested-With" : "XMLHttpRequest",
-            "X-IG-App-ID": "936619743392459",
-            "X-Instagram-AJAX" : "missing",
-            "X-CSRFToken" : "missing",
-            "Accept-Language" : "en-US,en;q=0.9" }
-        try:
-            r = requests.Session()
-            url_id = f'https://www.instagram.com/{user}/?__a=1'
-            ul="https://www.instagram.com/"+user
-            req_id = r.get(url_id, headers=headers).json()
-            bio = "· · • • • Bio • • • · ·\n\n"+str(req_id['graphql']['user']['biography'])
-            url = "· · • • • Website • • • · ·\n\n"+str(req_id['graphql']['user']['external_url'])
-            nam = "· · • • • Name • • • · ·\n\n"+str(req_id['graphql']['user']['full_name'])
-            idd = "· · • • • Id • • • · ·\n\n"+str(req_id['graphql']['user']['id'])
-            isp = "· · • • • الحساب خاص او غير خاص • • • · ·\n\n"+str(req_id['graphql']['user']['is_private'])
-            isv = "· · • • • علامة التحقق, الصح الازرق • • • · ·\n\n"+str(req_id['graphql']['user']['is_verified'])
-            pro =str(req_id['graphql']['user']['profile_pic_url_hd'])
-            empt= "=========#By @ahmed_4a========="
+headers = {
+    'HOST': "www.instagram.com",
+    'KeepAlive': 'True',
+    'user-agent': "Mozilla/5.0 (iPhone; CPU iPhone OS 13_5_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Mobile/15E148 Safari/604.1",
+}
 
-            bot.sendMessage(person_id,empt)
-            bot.sendMessage(person_id,ul)
-            bot.sendMessage(person_id, nam)
-            bot.sendMessage(person_id, idd)
-            bot.sendMessage(person_id, isp)
-            bot.sendMessage(person_id, isv)
-            bot.sendMessage(person_id, bio)
-            bot.sendMessage(person_id, url)
-            bot.sendPhoto(person_id, pro)
-            bot.sendMessage(person_id,empt)
-
-        except TypeError:
-            s="no user"
-            bot.sendMessage(person_id, s)
+@bot.message_handler(commands=['start', 'back'])
+def send_msg(message):
+    user = message.chat.first_name
+    key = types.InlineKeyboardMarkup(row_width=3)
+    st = types.InlineKeyboardButton("اضغط هنا", callback_data='start')
+    key.add(st)
+    bot.send_message(message.chat.id, f" مرحبا بك  {user} ", reply_markup=key)
 
 
-MessageLoop(bot, randpas).run_as_thread()
-while 1:
-    time.sleep(1)
+#@bot.message_handler(commands=['help', 'Help'])
+#def send_msg(message):
+    #reb=bot.send_message(message.chat.id, f"للحصول على الايدي ارسل اليوزر ")
+
+def ddd(message):
+        re = requests.get(f"https://o7aa.pythonanywhere.com/?id={message.text}")
+        ree = re.json()
+        dat = ree['data']
+        bot.send_message(message.chat.id, text=f"تـاريخ انشــاء الحــساب : {dat}\n\n")
+        bot.send_message(message.chat.id, text=f" اكـتـب ID حساب اخــر .. \n\n"
+                                                   f"او اذا واجهت مشاكل ابــد مـن جـديـد  /back")
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def make(call):
+    if call.data == 'start':
+        bot.edit_message_text(chat_id=(call.message.chat.id), message_id=(call.message.id),
+                              text='ارسال يوزر اي شخص وانتظر ..')
+
+        @bot.message_handler(func=(lambda message: True))
+        def send_message(message):
+            if message.text:
+                url_id = f'https://www.instagram.com/{message.text}/feed/?__a=1'
+                req_id = requests.get(url_id, headers=headers).json()
+                idd =str(req_id['graphql']['user']['id'])
+                re = requests.get(f"https://o7aa.pythonanywhere.com/?id={idd}")
+                ree = re.json()
+                dat = ree['data']
+                bot.send_message(message.chat.id, text=f"تـاريخ انشــاء الحــساب : {dat}\n\n")
+                bot.send_message(message.chat.id, text=f" اكـتـب ID حساب اخــر .. \n\n"
+                                                       f"او اذا واجهت مشاكل ابــد مـن جـديـد  /back")
+
+
+bot.polling()
